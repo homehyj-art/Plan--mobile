@@ -24,8 +24,8 @@
         #game-container {
             width: 90%;
             max-width: 1200px;
+            /* 모바일 화면에 맞게 높이 조절 */
             height: 90vh;
-            max-height: 800px;
             background: rgba(2, 6, 17, 0.7);
             border: 5px solid #ffcc00;
             border-radius: 20px;
@@ -36,6 +36,7 @@
             align-items: center;
             padding: 20px;
             position: relative;
+            box-sizing: border-box; /* padding이 너비/높이에 포함되도록 설정 */
         }
 
         #bg-video {
@@ -54,6 +55,11 @@
             text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
             font-size: 2.8em;
             margin-bottom: 20px;
+            word-break: keep-all; /* 단어 단위로 줄 바꿈 */
+        }
+
+        p {
+            word-break: keep-all;
         }
         
         #start-screen, #character-select-screen, #quest-screen, #result-screen, #dashboard-screen {
@@ -65,6 +71,7 @@
             height: 100%;
             opacity: 0;
             transition: opacity 1s ease-in-out;
+            box-sizing: border-box;
         }
         
         .visible {
@@ -82,6 +89,7 @@
             color: #ffffff;
             margin: 10px;
             transition: transform 0.2s, box-shadow 0.2s;
+            width: fit-content;
         }
         
         .button:hover {
@@ -141,6 +149,12 @@
             text-align: center;
             line-height: 1.5;
         }
+        
+        #quest-story {
+            font-size: 1.2em;
+            margin: 10px;
+            text-align: center;
+        }
 
         #quest-options {
             display: flex;
@@ -189,10 +203,18 @@
             font-size: 1.4em;
             margin: 20px;
             line-height: 1.6;
+            overflow-y: auto; /* 내용이 넘칠 경우 스크롤 추가 */
         }
+        
         #result-content p {
             color: #ffffff;
         }
+        
+        #result-content ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+        
         #result-content .star-burst {
             color: #ffeb3b;
         }
@@ -205,18 +227,21 @@
             border-radius: 10px;
             padding: 20px;
             color: #ffffff;
+            box-sizing: border-box;
         }
 
         #dashboard-content table {
             width: 100%;
             border-collapse: collapse;
             color: #ffffff;
+            font-size: 0.9em;
         }
         
         #dashboard-content th, #dashboard-content td {
             border: 1px solid #aaa;
             padding: 10px;
             text-align: left;
+            word-break: keep-all;
         }
         #dashboard-content th {
             background-color: rgba(255, 255, 255, 0.2);
@@ -226,6 +251,7 @@
             opacity: 0;
             transition: opacity 1s;
         }
+        
         .fade-in {
             opacity: 1;
             transition: opacity 1s;
@@ -241,6 +267,40 @@
             100% { transform: scale(1); opacity: 0.7; }
         }
 
+        /* 모바일 최적화 CSS */
+        @media (max-width: 768px) {
+            h1, h2 {
+                font-size: 2em;
+            }
+            .button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+            .character-card {
+                width: 120px;
+                padding: 15px;
+            }
+            .character-card h3 {
+                font-size: 1.2em;
+            }
+            .character-card p {
+                font-size: 0.8em;
+            }
+            .character-emoji {
+                font-size: 3em;
+            }
+            #quest-text {
+                font-size: 1.2em;
+                margin: 10px;
+            }
+            .quest-option {
+                font-size: 1em;
+                padding: 10px;
+            }
+            #result-content {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
