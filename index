@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>아틀란티스의 지혜: 나의 강점 지능을 찾아 떠나는 모험</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #0d1a2a;
+            color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        
+        #game-container {
+            width: 90%;
+            max-width: 1200px;
+            height: 90vh;
+            max-height: 800px;
+            background: rgba(2, 6, 17, 0.7);
+            border: 5px solid #ffcc00;
+            border-radius: 20px;
+            box-shadow: 0 0 50px rgba(255, 204, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        #bg-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        h1, h2 {
+            color: #ffffff;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-size: 2.8em;
+            margin-bottom: 20px;
+        }
+        
+        #start-screen, #character-select-screen, #quest-screen, #result-screen, #dashboard-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        
+        .visible {
+            display: flex !important;
+            opacity: 1 !important;
+        }
+        
+        .button {
+            padding: 15px 30px;
+            font-size: 1.3em;
+            cursor: pointer;
+            border: 2px solid #ffeb3b;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #0f2027, #2c5364);
+            color: #ffffff;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px #ffeb3b;
+        }
+        
+        #character-list {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .character-card {
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 180px;
+            text-align: center;
+        }
+        
+        .character-card.selected {
+            border-color: #00ff00;
+            box-shadow: 0 0 25px #00ff00;
+            transform: scale(1.1);
+        }
+        
+        .character-card h3 {
+            color: #ffffff;
+            margin: 10px 0;
+            font-size: 1.4em;
+        }
+        
+        .character-card p {
+            font-size: 1em;
+            color: #e0e0e0;
+        }
+
+        .character-emoji {
+            font-size: 5em;
+            display: block;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        .character-emoji:hover {
+            transform: scale(1.2);
+        }
+
+        #quest-text {
+            font-size: 1.6em;
+            margin: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        #quest-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 80%;
+        }
+
+        .quest-option {
+            padding: 15px;
+            font-size: 1.2em;
+            border: 1px solid #ffffff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.2s;
+            background-color: #2b2b2b;
+            color: #ffffff;
+        }
+        
+        .quest-option:hover {
+            background-color: #4a4a4a;
+            transform: translateY(-3px);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+        
+        #progress-bar-container {
+            width: 80%;
+            background-color: #555;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        #progress-bar {
+            height: 25px;
+            background-color: #00ff00;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+            text-align: center;
+            line-height: 25px;
+            color: #000000;
+            font-weight: bold;
+        }
+
+        #result-content {
+            font-size: 1.4em;
+            margin: 20px;
+            line-height: 1.6;
+        }
+        #result-content p {
+            color: #ffffff;
+        }
+        #result-content .star-burst {
+            color: #ffeb3b;
+        }
+
+        #dashboard-content {
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            color: #ffffff;
+        }
+
+        #dashboard-content table {
+            width: 100%;
+            border-collapse: collapse;
+            color: #ffffff;
+        }
+        
+        #dashboard-content th, #dashboard-content td {
+            border: 1px solid #aaa;
+            padding: 10px;
+            text-align: left;
+        }
+        #dashboard-content th {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .fade-out {
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        .fade-in {
+            opacity: 1;
+            transition: opacity 1s;
+        }
+        
+        .star-burst {
+            animation: sparkle 0.8s ease-out forwards;
+        }
+        
+        @keyframes sparkle {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        /* 모바일 최적화 CSS 추가 및 강화 */
+        @media (max-width: 768px) {
+            #game-container {
+                width: 95%;
+                height: auto;
+                max-height: 95vh;
+                padding: 10px;
+                overflow-y: auto;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.5em;
+            }
+            
+            p {
+                font-size: 0.9em;
+            }
+
+            .button {
+                padding: 10px 20px;
+                font-size: 0.9em;
+            }
+
+            #character-list {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .character-card {
+                width: 90%;
+                padding: 15px;
+            }
+
+            .character-emoji {
+                font-size: 3.5em;
+            }
+
+            #quest-text {
+                font-size: 1.1em;
+                margin: 15px;
+            }
+
+            .quest-option {
+                font-size: 1em;
+                padding: 10px;
+            }
+
+            #result-content {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <video id="bg-video" autoplay muted loop>
+        <source src="https://assets.mixkit.co/videos/preview/mixkit-floating-lights-in-an-ocean-4067-large.mp4" type="video/mp4">
+    </video>
+
+    <div id="game-container">
+        <div id="start-screen" class="visible">
+            <h1>잃어버린 지혜를 찾아서</h1>
+            <p>고대 아틀란티스 대륙에서 당신의 숨겨진 잠재력을 발견하세요!</p>
+            <button class="button" id="start-btn">모험 시작하기</button>
+            <button class="button" id="start-dashboard-btn">교사 대시보드 보기</button>
+        </div>
+
+        <div id="character-select-screen">
+            <h2>캐릭터 선택</h2>
+            <p>당신의 모험을 함께할 캐릭터를 선택하세요. 캐릭터마다 다른 모험이 펼쳐집니다!</p>
+            <div id="character-list">
+                <div class="character-card" data-character="scholar">
+                    <span class="character-emoji">👨‍🎓</span>
+                    <h3>고대 학자</h3>
+                    <p>멸망한 아틀란티스의 지식을 복원하고 미래 세대에 전하는 탐험가</p>
+                </div>
+                <div class="character-card" data-character="shaman">
+                    <span class="character-emoji">🧙‍♂️</span>
+                    <h3>정령술사</h3>
+                    <p>자연과 교감하며 아틀란티스 대륙을 되살리고자 하는 자연의 수호자</p>
+                </div>
+                <div class="character-card" data-character="warrior">
+                    <span class="character-emoji">⚔️</span>
+                    <h3>전사</h3>
+                    <p>잃어버린 영광을 되찾기 위해 아틀란티스의 험난한 유적을 개척하는 전사</p>
+                </div>
+                <div class="character-card" data-character="artist">
+                    <span class="character-emoji">🎨</span>
+                    <h3>마법사</h3>
+                    <p>소리와 색채로 마법을 부려 아름다움을 창조하는 예술가</p>
+                </div>
+            </div>
+            <button class="button" id="select-char-btn" disabled>선택 완료</button>
+        </div>
+
+        <div id="quest-screen">
+            <h2 id="quest-title"></h2>
+            <p id="quest-story"></p>
+            <div id="quest-text"></div>
+            <div id="quest-options"></div>
+            <div id="progress-bar-container">
+                <div id="progress-bar">0%</div>
+            </div>
+        </div>
+
+        <div id="result-screen">
+            <h2 class="star-burst">모험 완료!</h2>
+            <p>축하합니다! 당신의 모험이 끝났습니다. 당신의 강점 지능은 바로...</p>
+            <div id="result-content"></div>
+            <button class="button" id="restart-btn">다시 시작하기</button>
+            <button class="button" id="dashboard-btn">교사 대시보드 보기</button>
+        </div>
+
+        <div id="dashboard-screen">
+            <h2>교사 대시보드</h2>
+            <div id="dashboard-content">
+                <p>로딩 중...</p>
+            </div>
+            <button class="button" id="back-to-home-btn">처음으로</button>
+        </div>
+    </div>
+
+    <audio id="bgm" loop>
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-ancient-forest-soundscape-2067.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const gameContainer = document.getElementById('game-container');
+        const startScreen = document.getElementById('start-screen');
+        const characterSelectScreen = document.getElementById('character-select-screen');
+        const questScreen = document.getElementById('quest-screen');
+        const resultScreen = document.getElementById('result-screen');
+        const dashboardScreen = document.getElementById('dashboard-screen');
+        const startBtn = document.getElementById('start-btn');
+        const startDashboardBtn = document.getElementById('start-dashboard-btn');
+        const characterCards = document.querySelectorAll('.character-card');
+        const selectCharBtn = document.getElementById('select-char-btn');
+        const questTitle = document.getElementById('quest-title');
+        const questStory = document.getElementById('quest-story');
+        const questText = document.getElementById('quest-text');
+        const questOptions = document.getElementById('quest-options');
+        const progressBar = document.getElementById('progress-bar');
+        const resultContent = document.getElementById('result-content');
+        const restartBtn = document.getElementById('restart-btn');
+        const dashboardBtn = document.getElementById('dashboard-btn');
+        const backToHomeBtn = document.getElementById('back-to-home-btn');
+        const bgm = document.getElementById('bgm');
+
+        let selectedCharacter = null;
+        let questIndex = 0;
+        let scores = { '언어지능': 0, '논리수학지능': 0, '공간지능': 0, '신체운동지능': 0, '음악지능': 0, '대인관계지능': 0, '자기성찰지능': 0, '자연친화지능': 0 };
+        const totalQuests = 20;
+        let studentResults = [];
+
+        // 캐릭터별 고유한 서사
+        const characterData = {
+            scholar: { name: '고대 학자', story: '멸망한 아틀란티스의 지식을 복원하고 미래 세대에 전하는 것을 목표로 하는 고대 학자입니다. 당신은 지식과 논리를 바탕으로 퍼즐을 풀고, 고대 문서를 해독하며 잃어버린 역사를 탐험합니다.' },
+            shaman: { name: '정령술사', story: '자연과 교감하며 아틀란티스 대륙을 되살리고자 하는 정령술사입니다. 당신은 숲, 바다, 하늘의 정령들과 교류하며, 자연의 신비와 생명체의 지혜를 빌려 대자연의 균형을 되찾는 모험을 합니다.' },
+            warrior: { name: '전사', story: '아틀란티스의 잃어버린 영광을 되찾기 위해 험난한 유적을 개척하는 전사입니다. 당신은 강력한 신체 능력과 용기를 바탕으로 물리적인 난관을 극복하며, 고대 아틀란티스의 힘을 되찾아야 합니다.' },
+            artist: { name: '마법사', story: '소리와 색채로 마법을 부려 아름다움을 창조하는 마법사입니다. 당신은 잃어버린 예술 작품과 음악을 복원하며 아틀란티스의 찬란했던 문화를 되살리는 특별한 여정을 떠납니다.' }
+        };
+
+        const intelligenceInfo = {
+            '언어지능': { title: '언어지능: 말과 글의 지배자', emoji: '✍️', description: '말하고, 쓰고, 듣고, 읽는 능력이 탁월합니다. 언어를 통해 자신과 세상을 이해하며, 복잡한 생각을 명확하게 표현하는 데 강합니다.' },
+            '논리수학지능': { title: '논리수학지능: 이성의 탐험가', emoji: '🧠', description: '숫자, 논리, 추론 능력이 뛰어납니다. 복잡한 문제를 분석하고 해결하는 것을 즐기며, 패턴과 규칙을 찾는 데 재능이 있습니다.' },
+            '공간지능': { title: '공간지능: 시각적 설계자', emoji: '👁️', description: '세상의 형태와 공간 관계를 시각적으로 인식하는 능력이 뛰어납니다. 지도, 그림, 디자인 등 시각적 정보를 다루는 데 강하며, 새로운 공간을 창조하는 것을 즐깁니다.' },
+            '신체운동지능': { title: '신체운동지능: 움직임의 지휘자', emoji: '🏃', description: '자신의 신체를 자유롭게 조절하고 능숙하게 활용하는 능력이 뛰어납니다. 춤, 운동, 공예 등 몸을 사용하는 활동을 통해 자신을 표현합니다.' },
+            '음악지능': { title: '음악지능: 소리의 마법사', emoji: '🎶', description: '소리, 리듬, 멜로디에 대한 감각이 뛰어납니다. 음악을 만들고, 이해하고, 감상하는 것을 좋아하며, 소리를 통해 감정을 표현하는 데 강합니다.' },
+            '대인관계지능': { title: '대인관계지능: 공감의 연결자', emoji: '🤝', description: '다른 사람의 감정, 의도, 동기를 이해하고 소통하는 능력이 뛰어납니다. 사람들과 협력하고 관계를 맺는 것을 즐기며, 리더십을 발휘하는 데 재능이 있습니다.' },
+            '자기성찰지능': { title: '자기성찰지능: 내면의 지혜자', emoji: '🧘', description: '자신의 감정, 생각, 목표를 깊이 이해하는 능력이 뛰어납니다. 자기성찰을 통해 삶의 의미를 찾고, 독립적으로 문제를 해결하는 데 강합니다.' },
+            '자연친화지능': { title: '자연친화지능: 생명의 수호자', emoji: '🌳', description: '자연과 생명체를 관찰하고 분류하는 능력이 뛰어납니다. 자연 속에서 편안함을 느끼며, 식물, 동물, 환경에 대한 깊은 이해를 가지고 있습니다.' }
+        };
+
+        // 캐릭터별 퀘스트 데이터 (총 80개)
+        const questData = {
+            scholar: [
+                { title: "고대 서판의 수수께끼", text: "고대 도서관에서 희귀한 서판을 발견했다. 서판에는 잊혀진 언어와 복잡한 기호로 가득 차 있다. 이 서판의 비밀을 어떻게 해독할까?", options: [{ text: "서판에 새겨진 문양의 수학적 패턴을 분석해 규칙을 찾아낸다.", intelligence: "논리수학지능" }, { text: "고대 언어 사전을 찾아, 한 글자씩 서판의 의미를 해석한다.", intelligence: "언어지능" }, { text: "서판의 기하학적 형태와 구조를 분석하여, 숨겨진 지도를 그려낸다.", intelligence: "공간지능" }, { text: "서판이 발견된 도서관의 다른 유물과 비교하여 그 연관성을 파악한다.", intelligence: "자연친화지능" }] },
+                { title: "마법의 물시계 복원", text: "아틀란티스의 시간을 기록하던 마법의 물시계가 멈춰버렸다. 물시계의 복잡한 기계를 이해하고 다시 작동시켜야 한다.", options: [{ text: "물시계의 톱니바퀴와 기어의 움직임을 논리적으로 분석해 문제점을 파악한다.", intelligence: "논리수학지능" }, { text: "물시계의 구조를 머릿속에 시각화하여, 부품의 배치와 흐름을 이해한다.", intelligence: "공간지능" }, { text: "물시계가 작동할 때 나는 소리의 미세한 차이를 듣고, 고장 난 부분을 찾아낸다.", intelligence: "음악지능" }, { text: "물시계에 새겨진 고대 격언을 해독하여, 작동 원리에 대한 힌트를 얻는다.", intelligence: "언어지능" }] },
+                { title: "폐허가 된 도서관의 책 정리", text: "거대한 도서관이 붕괴되어 책들이 흩어졌다. 아틀란티스의 지식을 되살리기 위해, 수많은 책들을 올바르게 분류하고 재정리해야 한다.", options: [{ text: "책들의 내용과 주제를 기준으로 논리적인 분류 체계를 새로 만든다.", intelligence: "논리수학지능" }, { text: "책들의 크기와 무게, 색깔을 기준으로 가장 효율적인 배열을 고안한다.", intelligence: "공간지능" }, { text: "책에 쓰인 언어를 해독하여, 저자의 의도에 따라 책을 분류한다.", intelligence: "언어지능" }, { text: "다른 학자들과 팀을 이루어, 서로의 강점을 활용해 책을 정리한다.", intelligence: "대인관계지능" }] },
+                { title: "미지의 식물 연구", text: "깊은 동굴에서 이제껏 본 적 없는 미지의 식물을 발견했다. 이 식물의 특성을 연구하여 아틀란티스의 식물 지식을 확장해야 한다.", options: [{ text: "식물의 성장 패턴, 생태계에서의 역할을 관찰하고 기록한다.", intelligence: "자연친화지능" }, { text: "식물의 유전적 구조와 화학적 성분을 논리적으로 분석한다.", intelligence: "논리수학지능" }, { text: "식물의 형태를 정밀하게 스케치하고, 3D 모델로 재현해본다.", intelligence: "공간지능" }, { text: "식물에 대한 고대 기록을 찾아, 이름과 효능을 찾아본다.", intelligence: "언어지능" }] },
+                { title: "고대 수수께끼의 정답", text: "신전 입구에 '가장 지혜로운 자만이 들어올 수 있다'는 문구와 함께 수수께끼가 새겨져 있다. 수수께끼를 풀어야만 신전으로 들어갈 수 있다.", options: [{ text: "수수께끼의 문장 구조를 면밀히 분석하고 숨겨진 의미를 파악한다.", intelligence: "언어지능" }, { text: "수수께끼에 포함된 숫자의 논리적 관계를 계산하여 답을 찾는다.", intelligence: "논리수학지능" }, { text: "자신의 내면에 귀 기울여, 지혜가 무엇인지 스스로에게 질문한다.", intelligence: "자기성찰지능" }, { text: "주변의 자연물들을 관찰하며, 수수께끼에 대한 힌트를 얻는다.", intelligence: "자연친화지능" }] },
+                { title: "천체 관측소의 별자리", text: "천문 관측소의 천체 지도가 훼손되어 있다. 별자리를 다시 그려서 미래의 사건을 예측해야 한다.", options: [{ text: "별들의 위치와 움직임을 수학적으로 계산하여 정확한 좌표를 복원한다.", intelligence: "논리수학지능" }, { text: "별자리들이 이루는 형상을 머릿속에 시각화하여 지도를 완성한다.", intelligence: "공간지능" }, { text: "밤하늘의 계절별 별자리 변화를 분석하여, 정확한 별자리를 추론한다.", intelligence: "자연친화지능" }, { text: "고대 기록에 남아있는 별자리에 대한 시와 이야기를 찾아본다.", intelligence: "언어지능" }] },
+                { title: "마법 스크롤의 암호", text: "고대 마법사가 남긴 스크롤을 발견했다. 스크롤에는 복잡한 암호가 걸려있다. 암호를 해독해 마법의 진리를 얻어야 한다.", options: [{ text: "암호의 문법적 구조를 분석해 해독의 규칙을 찾아낸다.", intelligence: "언어지능" }, { text: "암호에 사용된 기호들의 배열을 수학적으로 분석한다.", intelligence: "논리수학지능" }, { text: "스크롤의 형태와 재질을 분석해 제작자의 의도를 파악한다.", intelligence: "자연친화지능" }, { text: "스크롤을 직접 만지고 펼쳐보며, 암호에 대한 신체적 감각을 키운다.", intelligence: "신체운동지능" }] },
+                { title: "심해 유적지의 지도", text: "가라앉은 아틀란티스 심해 유적지의 지도가 필요하다. 복잡한 해류와 지형을 피해 정확한 지도를 만들어야 한다.", options: [{ text: "유적지의 구조를 3D로 시뮬레이션하여 가장 효율적인 경로를 설계한다.", intelligence: "공간지능" }, { text: "해류의 속도와 방향을 계산하여 항해 경로를 논리적으로 설정한다.", intelligence: "논리수학지능" }, { text: "심해 생물들의 움직임을 관찰하며 안전한 길을 찾아낸다.", intelligence: "자연친화지능" }, { text: "동료들과 협력하여 정보를 공유하고 지도를 함께 제작한다.", intelligence: "대인관계지능" }] },
+                { title: "유적지 벽화의 의미", text: "아틀란티스 유적지 벽화에 희귀한 문양이 그려져 있다. 이 문양이 지닌 숨겨진 의미를 파악해야 한다.", options: [{ text: "벽화의 문양을 직접 손으로 그려보며 형태와 의미를 동시에 파악한다.", intelligence: "신체운동지능" }, { text: "벽화가 전달하려는 이야기와 상징을 언어적으로 해석한다.", intelligence: "언어지능" }, { text: "벽화가 그려진 순서와 논리를 분석해 그 의미를 추론한다.", intelligence: "논리수학지능" }, { text: "벽화 속 인물들의 표정과 행동을 통해 그들의 감정을 이해한다.", intelligence: "대인관계지능" }] },
+                { title: "현자들의 회의 기록", text: "고대 현자들의 회의 기록이 담긴 석판을 발견했다. 석판에 새겨진 기록의 요점을 파악하고 핵심 지식을 정리해야 한다.", options: [{ text: "석판의 내용을 통째로 외우고, 머릿속에서 재구성하여 요약한다.", intelligence: "언어지능" }, { text: "기록에 나타난 논리적 흐름과 결론을 분석하여 핵심을 파악한다.", intelligence: "논리수학지능" }, { text: "기록 속 현자들의 대화에 담긴 감정을 이해하고 그들의 고민을 느껴본다.", intelligence: "자기성찰지능" }, { text: "기록에 언급된 장소를 지도에 표시하고, 지형과의 관계를 분석한다.", intelligence: "공간지능" }] },
+                { title: "고대 건축물의 퍼즐", text: "거대한 건축물 안에 갇혔다. 문을 열기 위해서는 복잡한 퍼즐을 풀어야 한다. 퍼즐의 해법을 찾아내야 한다.", options: [{ text: "퍼즐 조각들의 기하학적 형태를 분석하여 정확한 위치에 맞춰본다.", intelligence: "공간지능" }, { text: "퍼즐에 담긴 논리적 규칙을 파악하여 해결책을 찾는다.", intelligence: "논리수학지능" }, { text: "퍼즐에 적힌 고대 문구를 해석하여 힌트를 얻는다.", intelligence: "언어지능" }, { text: "퍼즐 조각을 손으로 직접 만지며, 조각의 질감을 통해 해법을 직관적으로 느낀다.", intelligence: "신체운동지능" }] },
+                { title: "시간 여행 마법의 원리", text: "시간을 되돌리는 마법의 원리가 담긴 책을 발견했다. 책의 내용을 완벽하게 이해하고 마법을 구사해야 한다.", options: [{ text: "책에 기록된 마법 주문을 정확하게 발음하여 외운다.", intelligence: "언어지능" }, { text: "시간의 흐름에 대한 수학적 공식을 이해하고 마법에 적용한다.", intelligence: "논리수학지능" }, { text: "마법 시전 시 몸의 움직임을 완벽하게 재현한다.", intelligence: "신체운동지능" }, { text: "마법의 힘을 내면에 집중하고, 스스로의 의지를 조절한다.", intelligence: "자기성찰지능" }] },
+                { title: "유적지 보물 상자", text: "오래된 유적지에서 보물 상자를 발견했다. 보물 상자에 걸린 마법을 해제해야 한다.", options: [{ text: "상자에 새겨진 문양을 분석하여 마법 해제 순서를 파악한다.", intelligence: "공간지능" }, { text: "상자에 걸린 마법의 원리를 논리적으로 분석한다.", intelligence: "논리수학지능" }, { text: "상자에 적힌 고대 주문을 외워 마법을 해제한다.", intelligence: "언어지능" }, { text: "상자 주위의 자연 환경을 활용하여 마법을 무력화시킨다.", intelligence: "자연친화지능" }] },
+                { title: "신비한 약초 조합", text: "아틀란티스의 질병을 치료할 수 있는 신비한 약초를 찾아야 한다. 약초의 특성을 파악하여 치료제를 만들어야 한다.", options: [{ text: "약초의 종류와 효능에 대한 고대 문헌을 참고하여 정확하게 조합한다.", intelligence: "언어지능" }, { text: "약초의 형태와 색깔, 냄새를 관찰하여 효능을 파악한다.", intelligence: "자연친화지능" }, { text: "약초의 조합 비율을 수학적으로 계산하여 최적의 치료제를 만든다.", intelligence: "논리수학지능" }, { text: "약초를 만져보며 그 특성을 직접 몸으로 느껴본다.", intelligence: "신체운동지능" }] },
+                { title: "현자들의 지식 전파", text: "아틀란티스에서 얻은 지식을 미래 세대에 전파해야 한다. 지식을 어떻게 전달할 것인가?", options: [{ text: "지식을 체계적으로 정리하여 누구나 이해하기 쉬운 논문을 작성한다.", intelligence: "언어지능" }, { text: "지식의 핵심 원리를 도표와 그래프로 만들어 시각적으로 표현한다.", intelligence: "공간지능" }, { text: "지식을 다른 사람들과 함께 나누고 토론하며, 지식 공동체를 만든다.", intelligence: "대인관계지능" }, { text: "지식을 자신만의 방식으로 재해석하고, 새로운 창조물로 표현한다.", intelligence: "자기성찰지능" }] },
+                { title: "숨겨진 보물 위치", text: "고대 기록에 숨겨진 보물의 위치가 암시되어 있다. 기록을 해석하고 보물을 찾아야 한다.", options: [{ text: "기록의 문맥과 단어를 분석하여 숨겨진 의미를 파악한다.", intelligence: "언어지능" }, { text: "기록에 언급된 지형을 상상하여 보물의 위치를 시각화한다.", intelligence: "공간지능" }, { text: "보물의 위치에 대한 논리적 추론을 통해 가능한 경로를 파악한다.", intelligence: "논리수학지능" }, { text: "기록에 언급된 동물의 움직임을 관찰하여 힌트를 얻는다.", intelligence: "자연친화지능" }] },
+                { title: "미지의 악보 해독", text: "미지의 악보를 발견했다. 이 악보를 해독하여 잃어버린 아틀란티스 음악을 복원해야 한다.", options: [{ text: "악보의 음표와 박자를 분석하여 음악적 규칙을 찾아낸다.", intelligence: "논리수학지능" }, { text: "악보의 음색과 리듬을 상상하며 음악을 머릿속으로 연주해본다.", intelligence: "음악지능" }, { text: "악보에 적힌 음표의 형태를 보고, 새로운 악보를 창조한다.", intelligence: "공간지능" }, { text: "악보를 만든 이의 감정을 이해하고, 그 감정을 음악으로 표현한다.", intelligence: "자기성찰지능" }] },
+                { title: "고대 지도의 완성", text: "찢어진 고대 지도를 발견했다. 조각들을 맞춰서 완전한 지도를 만들어야 한다.", options: [{ text: "조각들의 모양을 분석하고, 가장 적합한 위치를 찾아 맞춰본다.", intelligence: "공간지능" }, { text: "조각에 적힌 글씨를 읽고, 내용의 흐름을 따라 조각을 연결한다.", intelligence: "언어지능" }, { text: "조각을 직접 움직여보며, 손끝의 감각으로 맞는 조각을 찾아낸다.", intelligence: "신체운동지능" }, { text: "지도에 묘사된 지형의 특징을 이해하고 조각의 위치를 추론한다.", intelligence: "자연친화지능" }] },
+                { title: "신비한 샘물의 비밀", text: "신비한 샘물을 발견했다. 샘물에는 '가장 위대한 지혜를 아는 자에게만 길을 열어줄 것이다'라는 문구가 쓰여 있다. 어떤 지혜를 선택할 것인가?", options: [{ text: "세상을 이해하고 문제를 해결하는 논리적 사고라고 답한다.", intelligence: "논리수학지능" }, { text: "자연의 순리와 조화를 이해하는 것이라고 답한다.", intelligence: "자연친화지능" }, { text: "타인의 아픔에 공감하고 사랑하는 마음이라고 답한다.", intelligence: "대인관계지능" }, { text: "자신의 내면을 깊이 이해하고 성찰하는 것이라고 답한다.", intelligence: "자기성찰지능" }] },
+                { title: "마지막 시험", text: "모든 지혜를 얻은 당신. 이제 아틀란티스의 지식을 세상에 전해야 한다. 어떤 방법으로 지식을 전파할 것인가?", options: [{ text: "지식을 정리하여 책을 쓰고, 온 세상에 지식을 전달한다.", intelligence: "언어지능" }, { text: "지식의 원리를 담은 발명품을 만들어, 실용적으로 활용하게 한다.", intelligence: "논리수학지능" }, { text: "지식을 예술 작품으로 승화시켜, 사람들의 마음을 움직인다.", intelligence: "음악지능" }, { text: "직접 사람들을 만나 지혜를 전하며, 그들의 삶을 변화시킨다.", intelligence: "대인관계지능" }] }
+            ],
+            shaman: [
+                { title: "어둠에 물든 숲의 정화", text: "신성한 숲이 어둠의 기운에 물들었다. 나무들이 슬퍼하고 있다. 숲을 정화하고 자연의 평화를 되찾아야 한다.", options: [{ text: "숲의 모든 생명체와 교감하며, 그들의 슬픔을 위로한다.", intelligence: "자연친화지능" }, { text: "어둠의 기운이 퍼지는 경로를 논리적으로 분석하여 근원을 찾아낸다.", intelligence: "논리수학지능" }, { text: "숲의 노래를 부르며, 정령들의 슬픈 소리를 아름다운 화음으로 바꾼다.", intelligence: "음악지능" }, { text: "다른 정령술사들을 모아, 함께 숲을 정화하는 의식을 치른다.", intelligence: "대인관계지능" }] },
+                { title: "울부짖는 바다 정령", text: "바다가 심하게 울렁이며 폭풍을 일으키고 있다. 바다 정령이 분노한 것이다. 정령을 진정시키고 바다의 평화를 되찾아야 한다.", options: [{ text: "바닷속 생물들의 움직임을 관찰하여 정령의 분노 원인을 파악한다.", intelligence: "자연친화지능" }, { text: "바다의 울부짖음을 듣고, 그 속에 담긴 고통의 메시지를 이해한다.", intelligence: "음악지능" }, { text: "정령의 분노에 공감하고, 진심으로 사과하며 대화를 시도한다.", intelligence: "자기성찰지능" }, { text: "다른 어부들과 협력하여, 바다를 정화하는 의식을 계획한다.", intelligence: "대인관계지능" }] },
+                { title: "죽어가는 동물의 소생", text: "신성한 사슴이 독에 중독되어 죽어가고 있다. 사슴의 생명을 구하고 그를 소생시켜야 한다.", options: [{ text: "주변의 약초와 독초를 구분하고, 해독에 필요한 약초를 찾아낸다.", intelligence: "자연친화지능" }, { text: "사슴의 몸짓과 상태를 관찰하여, 독의 종류를 파악한다.", intelligence: "신체운동지능" }, { text: "사슴의 미약한 심장 박동 소리를 듣고, 그 리듬에 맞춰 회복 마법을 시전한다.", intelligence: "음악지능" }, { text: "자신의 내면의 힘을 끌어모아, 사슴에게 생명력을 불어넣는다.", intelligence: "자기성찰지능" }] },
+                { title: "사라진 바람의 정령", text: "바람의 정령이 갑자기 사라져 세상이 고요해졌다. 정령의 흔적을 찾아 그를 되찾아야 한다.", options: [{ text: "바람이 지나간 길의 흔적을 찾아, 정령의 움직임을 공간적으로 추적한다.", intelligence: "공간지능" }, { text: "바람이 남긴 소리의 파동을 듣고, 정령의 마지막 메시지를 해독한다.", intelligence: "음악지능" }, { text: "자연의 흐름을 느끼며, 바람이 사라진 이유를 내면의 감각으로 이해한다.", intelligence: "자기성찰지능" }, { text: "바람의 정령에 대한 고대 전설을 찾아, 사라진 이유를 추론한다.", intelligence: "언어지능" }] },
+                { title: "영원한 겨울의 산맥", text: "따뜻했던 산맥이 갑자기 영원한 겨울에 갇혔다. 산맥의 정령이 얼어붙었다. 정령을 구하고 봄을 되찾아야 한다.", options: [{ text: "얼어붙은 산맥의 지형을 분석해, 정령이 갇힌 곳을 찾아낸다.", intelligence: "공간지능" }, { text: "산맥의 나무와 동물들의 상태를 관찰하여, 정령의 상태를 파악한다.", intelligence: "자연친화지능" }, { text: "정령의 얼어붙은 외침을 듣고, 그를 녹일 따뜻한 노래를 부른다.", intelligence: "음악지능" }, { text: "산맥에 사는 다른 사람들과 힘을 모아, 함께 정령을 구출한다.", intelligence: "대인관계지능" }] },
+                { title: "대지의 심장 소리", text: "대지의 심장 소리가 점점 약해지고 있다. 심장 소리를 되살려야 아틀란티스 대륙이 멸망하지 않는다.", options: [{ text: "땅의 진동과 소리를 듣고, 대지의 심장이 있는 곳을 찾아낸다.", intelligence: "음악지능" }, { text: "대지의 심장이 멈춘 논리적 원인을 분석하고 해결책을 찾는다.", intelligence: "논리수학지능" }, { text: "대지의 심장과 교감하며, 그에게 힘을 불어넣는다.", intelligence: "자기성찰지능" }, { text: "다른 정령술사들과 함께 대지의 심장에 힘을 불어넣는 의식을 행한다.", intelligence: "대인관계지능" }] },
+                { title: "고대 나무의 지혜", text: "아틀란티스에서 가장 오래된 고대 나무가 당신에게 말을 걸어왔다. 나무의 지혜를 얻어 미래를 준비해야 한다.", options: [{ text: "나무의 이야기를 주의 깊게 듣고, 그 속에 담긴 지혜를 언어적으로 이해한다.", intelligence: "언어지능" }, { text: "나무의 나이테와 잎사귀의 패턴을 분석하여, 나무의 역사를 읽는다.", intelligence: "자연친화지능" }, { text: "나무를 직접 만지며, 그 안에 흐르는 생명력을 느낀다.", intelligence: "신체운동지능" }, { text: "나무의 지혜를 다른 사람들에게 전달하고, 함께 배우려 노력한다.", intelligence: "대인관계지능" }] },
+                { title: "정령의 춤 복원", text: "정령들과 소통하는 고대 춤이 잊혀졌다. 춤을 복원하여 정령들과의 교감을 회복해야 한다.", options: [{ text: "고대 춤의 동작을 보고, 그 동작을 정확하게 따라한다.", intelligence: "신체운동지능" }, { text: "춤의 리듬과 멜로디를 듣고, 몸짓을 통해 음악을 표현한다.", intelligence: "음악지능" }, { text: "춤의 의미와 상징을 언어적으로 해석하여, 춤의 원리를 이해한다.", intelligence: "언어지능" }, { text: "춤을 추며 자신의 감정과 몸의 움직임을 깊이 있게 연결한다.", intelligence: "자기성찰지능" }] },
+                { title: "신성한 샘물 정화", text: "아틀란티스의 생명수인 신성한 샘물이 오염되었다. 샘물을 정화하여 생명력을 되살려야 한다.", options: [{ text: "샘물을 구성하는 물질을 분석하고, 오염의 원인을 논리적으로 파악한다.", intelligence: "논리수학지능" }, { text: "샘물 주변의 식물과 동물들을 관찰하여, 오염의 정도를 파악한다.", intelligence: "자연친화지능" }, { text: "샘물의 흐름을 시각적으로 파악하여, 정화 마법의 위치를 정한다.", intelligence: "공간지능" }, { text: "자신의 내면의 힘을 끌어올려, 샘물에 긍정적인 에너지를 불어넣는다.", intelligence: "자기성찰지능" }] },
+                { title: "잃어버린 정령의 말", text: "고대 정령이 당신에게 잊혀진 언어로 말을 건넸다. 정령의 말을 이해해야만 다음 단계로 나아갈 수 있다.", options: [{ text: "정령의 말을 한 글자씩 해독하여, 그 의미를 파악한다.", intelligence: "언어지능" }, { text: "정령의 목소리 톤과 리듬을 분석하여, 그가 느끼는 감정을 파악한다.", intelligence: "음악지능" }, { text: "정령의 말을 다른 사람들과 함께 토론하고, 그들의 의견을 종합한다.", intelligence: "대인관계지능" }, { text: "정령의 말을 듣고, 자신의 내면의 감정을 통해 의미를 추측한다.", intelligence: "자기성찰지능" }] },
+                { title: "동물 친구들의 도움", text: "위험한 미로에 갇혔다. 미로를 탈출하기 위해 동물 친구들의 도움을 받아야 한다.", options: [{ text: "동물들의 움직임을 관찰하여, 미로 속의 숨겨진 길을 찾아낸다.", intelligence: "자연친화지능" }, { text: "미로의 지도를 머릿속에 그리고, 가장 빠른 탈출 경로를 계획한다.", intelligence: "공간지능" }, { text: "동물들과 몸짓으로 소통하며, 서로의 의도를 이해한다.", intelligence: "신체운동지능" }, { text: "동물들의 소리를 듣고, 소리의 방향을 따라 출구를 찾는다.", intelligence: "음악지능" }] },
+                { title: "숲의 수호자 설득", text: "숲의 수호자가 당신을 외부인으로 간주하고 길을 막았다. 수호자를 설득하여 숲을 통과해야 한다.", options: [{ text: "수호자에게 진심으로 숲을 아끼는 마음을 전달한다.", intelligence: "대인관계지능" }, { text: "수호자의 감정을 읽고, 그가 무엇을 원하는지 이해한다.", intelligence: "자기성찰지능" }, { text: "수호자에게 논리적인 이유를 들어 숲을 통과해야 하는 이유를 설명한다.", intelligence: "논리수학지능" }, { text: "수호자의 신체적 움직임을 따라하여, 친밀감을 형성한다.", intelligence: "신체운동지능" }] },
+                { title: "자연의 춤", text: "자연과 하나가 되는 춤을 추어야 한다. 춤을 통해 자연의 힘을 끌어내야 한다.", options: [{ text: "바람의 방향, 물의 흐름을 느끼고 몸으로 표현한다.", intelligence: "자연친화지능" }, { text: "춤의 리듬을 스스로 창조하고, 자연의 소리와 조화를 이룬다.", intelligence: "음악지능" }, { text: "춤의 동작을 논리적으로 구성하여, 자연의 원리를 표현한다.", intelligence: "논리수학지능" }, { text: "자신의 몸을 자유롭게 움직이며, 자연과 하나됨을 느낀다.", intelligence: "신체운동지능" }] },
+                { title: "자연의 치유력", text: "상처 입은 동료를 치료해야 한다. 자연의 힘을 빌려 치유 마법을 시전해야 한다.", options: [{ text: "동료의 상처를 직접 만져보고, 치유에 필요한 힘을 측정한다.", intelligence: "신체운동지능" }, { text: "동료의 고통에 공감하고, 진심으로 그를 치료하려 노력한다.", intelligence: "자기성찰지능" }, { text: "치유 마법 주문을 정확하게 발음하여, 마법의 힘을 끌어낸다.", intelligence: "언어지능" }, { text: "주변의 식물과 광물들을 활용하여, 치유 포션을 제조한다.", intelligence: "자연친화지능" }] },
+                { title: "강의 수호신", text: "강의 수호신이 인간의 오만함에 분노하여 강을 말려버렸다. 수호신을 설득하여 강을 되살려야 한다.", options: [{ text: "수호신의 분노에 대한 이유를 논리적으로 추론한다.", intelligence: "논리수학지능" }, { text: "수호신에게 진심으로 사과하고, 인간의 잘못을 인정한다.", intelligence: "대인관계지능" }, { text: "수호신의 울음소리를 듣고, 그 슬픔의 원인을 파악한다.", intelligence: "음악지능" }, { text: "강 주변의 생명체들의 고통에 공감하며, 수호신을 설득한다.", intelligence: "자연친화지능" }] },
+                { title: "고대 숲의 신비", text: "고대 숲에 숨겨진 신비로운 장소에 도달해야 한다. 숲의 신비로운 힘을 느껴보자.", options: [{ text: "숲의 나무들과 이야기를 나누며 길을 찾는다.", intelligence: "언어지능" }, { text: "나뭇잎의 그림자를 따라가며 숨겨진 장소를 찾아낸다.", intelligence: "공간지능" }, { text: "숲의 소리에 귀 기울여, 자연이 말해주는 길을 따라간다.", intelligence: "음악지능" }, { text: "자신의 내면의 감각을 통해, 숲이 가리키는 방향을 파악한다.", intelligence: "자기성찰지능" }] },
+                { title: "자연의 언어 해독", text: "아틀란티스의 동물들은 특별한 언어로 소통한다. 동물의 언어를 해독하여 길을 찾아야 한다.", options: [{ text: "동물들의 소리를 분석하여 그 의미를 파악한다.", intelligence: "음악지능" }, { text: "동물의 몸짓과 표정을 관찰하여, 그들의 의도를 파악한다.", intelligence: "신체운동지능" }, { text: "동물들의 생태와 습성을 이해하고 그들의 행동을 예측한다.", intelligence: "자연친화지능" }, { text: "동물들과의 소통 경험을 통해 자신을 돌아보고, 동물들과의 관계를 정립한다.", intelligence: "자기성찰지능" }] },
+                { title: "폭풍우 진정시키기", text: "갑자기 거대한 폭풍우가 몰아치고 있다. 폭풍우를 진정시키고 하늘의 평화를 되찾아야 한다.", options: [{ text: "폭풍우의 풍속, 구름의 이동 방향을 논리적으로 분석한다.", intelligence: "논리수학지능" }, { text: "폭풍우의 굉음과 바람 소리를 듣고, 그 안에 담긴 분노의 감정을 이해한다.", intelligence: "음악지능" }, { text: "폭풍우의 형상과 움직임을 머릿속으로 그려, 약점을 찾아낸다.", intelligence: "공간지능" }, { text: "폭풍우가 발생한 자연적 원인에 대해 깊이 탐구하고, 근본적인 해결책을 찾는다.", intelligence: "자연친화지능" }] },
+                { title: "오염된 땅 치유", text: "신전 주변의 땅이 오염되어 생명력을 잃었다. 오염된 땅을 치유하고 생명을 되살려야 한다.", options: [{ text: "오염된 땅의 성분을 분석하고, 오염 물질의 원인을 논리적으로 파악한다.", intelligence: "논리수학지능" }, { text: "오염된 땅의 흙을 직접 만져보고, 땅이 필요로 하는 것을 감각적으로 느낀다.", intelligence: "신체운동지능" }, { text: "오염된 땅을 정화하는 마법 주문을 외워, 땅에 생명력을 불어넣는다.", intelligence: "언어지능" }, { text: "오염된 땅에 사는 생명체들의 고통에 공감하고, 진심으로 치유하려 노력한다.", intelligence: "대인관계지능" }] },
+                { title: "대자연의 부름", text: "대자연이 당신을 부르고 있다. 자연의 목소리에 귀 기울여, 아틀란티스의 마지막 비밀을 찾아야 한다.", options: [{ text: "새들의 노랫소리, 바람의 속삭임 등 자연의 소리에 집중하여 비밀의 장소를 알아낸다.", intelligence: "음악지능" }, { text: "자연의 변화와 계절의 흐름을 관찰하며, 비밀의 장소를 추론한다.", intelligence: "자연친화지능" }, { text: "자연의 아름다움을 그림으로 그려, 숨겨진 의미를 시각적으로 표현한다.", intelligence: "공간지능" }, { text: "자신과 자연의 관계에 대해 깊이 성찰하며, 내면의 지혜를 깨닫는다.", intelligence: "자기성찰지능" }] }
+            ],
+            warrior: [
+                { title: "바위 미로 탈출", text: "거대한 바위 미로에 갇혔다. 미로의 복잡한 구조를 파악하고, 탈출해야 한다.", options: [{ text: "미로의 벽을 따라 몸으로 길을 더듬으며 출구를 찾아낸다.", intelligence: "신체운동지능" }, { text: "미로의 지형을 머릿속에 그려, 최단 경로를 계획한다.", intelligence: "공간지능" }, { text: "다른 사람들과 함께 미로의 정보를 공유하고, 함께 탈출 경로를 논의한다.", intelligence: "대인관계지능" }, { text: "미로의 구조에 담긴 논리적 패턴을 찾아내어, 해법을 도출한다.", intelligence: "논리수학지능" }] },
+                { title: "고대 유적의 함정", text: "고대 유적지에 숨겨진 함정들이 작동하기 시작했다. 함정을 피하고 안전하게 유적지를 통과해야 한다.", options: [{ text: "함정의 움직임과 타이밍을 정확히 계산하여, 몸으로 피한다.", intelligence: "신체운동지능" }, { text: "함정의 구조를 분석하고, 함정이 작동하는 원리를 논리적으로 이해한다.", intelligence: "논리수학지능" }, { text: "함정의 형태와 배치 순서를 시각적으로 기억하여, 안전한 길을 찾아낸다.", intelligence: "공간지능" }, { text: "자신의 직감을 믿고, 가장 안전하다고 느껴지는 경로를 선택한다.", intelligence: "자기성찰지능" }] },
+                { title: "괴수와의 전투", text: "유적지를 지키는 거대한 괴수가 나타났다. 괴수를 쓰러뜨리고 길을 열어야 한다.", options: [{ text: "괴수의 움직임을 관찰하고, 약점을 찾아내어 공격한다.", intelligence: "신체운동지능" }, { text: "괴수의 포효 소리를 듣고, 그 안에 담긴 고통을 이해하려 노력한다.", intelligence: "음악지능" }, { text: "다른 동료들과 협력하여 괴수를 포위하고, 함께 공격한다.", intelligence: "대인관계지능" }, { text: "괴수가 나타난 이유를 탐구하고, 싸움이 아닌 다른 해결책을 찾는다.", intelligence: "자기성찰지능" }] },
+                { title: "무너진 다리 복구", text: "깊은 심연 위에 놓인 다리가 무너졌다. 무너진 다리를 복구하고 건너가야 한다.", options: [{ text: "주변의 재료들을 활용하여, 튼튼한 다리를 직접 만들어낸다.", intelligence: "신체운동지능" }, { text: "다리의 설계도를 머릿속으로 재구성하여, 가장 효율적인 복구 방법을 찾아낸다.", intelligence: "공간지능" }, { text: "동료들에게 각자에게 맞는 역할을 배분하고, 팀워크를 발휘하여 다리를 복구한다.", intelligence: "대인관계지능" }, { text: "다리 복구에 필요한 물리적 원리를 계산하고, 안전한 구조물을 설계한다.", intelligence: "논리수학지능" }] },
+                { title: "최후의 결투", text: "아틀란티스의 힘을 지키는 최후의 수호자가 당신에게 결투를 신청했다. 수호자를 이기고 힘을 얻어야 한다.", options: [{ text: "수호자의 공격 패턴을 분석하고, 가장 효율적인 방어와 공격 전략을 세운다.", intelligence: "논리수학지능" }, { text: "수호자의 움직임을 따라하며, 그의 전투 방식을 몸으로 익힌다.", intelligence: "신체운동지능" }, { text: "수호자의 눈을 보며 그의 감정을 읽고, 대화를 통해 싸움을 피하려 노력한다.", intelligence: "대인관계지능" }, { text: "수호자의 존재 의미와 자신의 목적에 대해 깊이 성찰한다.", intelligence: "자기성찰지능" }] },
+                { title: "새로운 무기 제작", text: "고대의 힘이 담긴 무기가 파손되었다. 무기를 복원하거나 새로운 무기를 만들어야 한다.", options: [{ text: "무기 제작에 필요한 재료들을 숲과 광산에서 직접 찾아낸다.", intelligence: "자연친화지능" }, { text: "무기의 파손 부위를 3D로 시뮬레이션하고, 가장 효율적인 복구 방법을 설계한다.", intelligence: "공간지능" }, { text: "무기의 재질과 형태를 직접 손으로 다듬으며, 새로운 무기를 만들어낸다.", intelligence: "신체운동지능" }, { text: "무기에 새겨진 고대 문양을 해석하고, 문양이 지닌 힘을 이해한다.", intelligence: "언어지능" }] },
+                { title: "고대 전술서 해독", text: "고대 전사들이 남긴 전술서가 암호로 봉인되어 있다. 암호를 해독하여 최강의 전술을 배워야 한다.", options: [{ text: "암호의 규칙을 논리적으로 분석하여, 해독의 열쇠를 찾아낸다.", intelligence: "논리수학지능" }, { text: "전술서에 담긴 전사들의 이야기에 귀 기울여, 그들의 전투 철학을 이해한다.", intelligence: "언어지능" }, { text: "전술서의 그림을 보며, 전술을 머릿속으로 시뮬레이션해본다.", intelligence: "공간지능" }, { text: "전술서에 담긴 전사들의 감정을 이해하고, 그들의 마음을 느껴본다.", intelligence: "자기성찰지능" }] },
+                { title: "거대한 짐승 사냥", text: "아틀란티스의 숲을 위협하는 거대한 짐승이 나타났다. 짐승을 사냥하여 숲의 평화를 되찾아야 한다.", options: [{ text: "짐승의 발자국, 습성 등을 관찰하여 짐승의 위치를 파악한다.", intelligence: "자연친화지능" }, { text: "짐승의 울음소리를 듣고, 짐승의 약점을 파악한다.", intelligence: "음악지능" }, { text: "다른 사람들과 협력하여, 짐승을 포획하는 함정을 설치한다.", intelligence: "대인관계지능" }, { text: "짐승의 행동을 예측하고, 공격 시점을 정확하게 판단한다.", intelligence: "신체운동지능" }] },
+                { title: "피난민 구출 작전", text: "무너진 유적지에 갇힌 피난민들을 구출해야 한다. 위험을 무릅쓰고 피난민들을 안전하게 대피시켜야 한다.", options: [{ text: "피난민들을 안심시키고, 각자에게 맞는 역할을 부여하여 효율적으로 구출한다.", intelligence: "대인관계지능" }, { text: "유적지의 구조를 머릿속에 그려, 가장 안전한 탈출 경로를 찾아낸다.", intelligence: "공간지능" }, { text: "피난민들의 신체적 움직임을 관찰하고, 각자에게 맞는 구출 방법을 제공한다.", intelligence: "신체운동지능" }, { text: "자신이 왜 피난민들을 구출해야 하는지, 그 의미를 깊이 성찰한다.", intelligence: "자기성찰지능" }] },
+                { title: "고대 전사의 맹세", text: "아틀란티스 전사들이 남긴 맹세가 새겨진 석판을 발견했다. 맹세의 의미를 이해하고, 그 맹세를 따라야 한다.", options: [{ text: "맹세의 내용을 한 글자씩 해독하여, 그 의미를 정확하게 파악한다.", intelligence: "언어지능" }, { text: "맹세에 담긴 논리적 구조를 분석하고, 맹세가 지향하는 바를 이해한다.", intelligence: "논리수학지능" }, { text: "맹세의 내용을 몸으로 직접 실천하며, 전사의 정신을 느낀다.", intelligence: "신체운동지능" }, { text: "자신의 내면의 목소리에 귀 기울여, 맹세가 자신에게 어떤 의미인지 스스로에게 질문한다.", intelligence: "자기성찰지능" }] },
+                { title: "무너진 신전 재건", text: "오래되어 무너진 신전을 재건해야 한다. 신전의 원래 모습을 복원하고, 아틀란티스의 영광을 되살려야 한다.", options: [{ text: "신전의 설계도를 머릿속에 시각화하여, 복구 순서와 방법을 계획한다.", intelligence: "공간지능" }, { text: "신전 재건에 필요한 자재와 인력을 효율적으로 관리하고, 작업을 진행한다.", intelligence: "대인관계지능" }, { text: "신전에 새겨진 고대 건축 원리를 논리적으로 분석하고, 재건에 적용한다.", intelligence: "논리수학지능" }, { text: "신전 주변의 자연 환경을 활용하여, 신전과 자연이 조화를 이루게 한다.", intelligence: "자연친화지능" }] },
+                { title: "최고의 창술 시범", text: "모든 것을 파괴하는 마법의 창을 발견했다. 창을 완벽하게 다뤄, 그 힘을 증명해야 한다.", options: [{ text: "창을 자유자재로 다루며, 몸의 균형과 힘을 조절한다.", intelligence: "신체운동지능" }, { text: "창의 무게와 길이를 계산하여, 가장 효율적인 공격 방식을 찾아낸다.", intelligence: "논리수학지능" }, { text: "창에 새겨진 고대 문양을 해석하고, 창의 진정한 힘을 이끌어낸다.", intelligence: "언어지능" }, { text: "창이 내는 소리와 바람을 가르는 소리에 집중하며, 완벽한 자세를 취한다.", intelligence: "음악지능" }] },
+                { title: "고대 유물 보호", text: "고대 유물을 노리는 도굴꾼들이 나타났다. 유물을 지키고, 도굴꾼들을 저지해야 한다.", options: [{ text: "도굴꾼들의 이동 경로를 파악하고, 그들을 논리적으로 추적한다.", intelligence: "논리수학지능" }, { text: "유물의 위치를 숨길 수 있는 가장 안전한 장소를 찾아낸다.", intelligence: "공간지능" }, { text: "도굴꾼들과 대화하여, 유물을 훔치려는 이유를 듣고 그들을 설득한다.", intelligence: "대인관계지능" }, { text: "유물이 지닌 역사적 의미를 깊이 이해하고, 유물을 보호하려는 마음을 다진다.", intelligence: "자기성찰지능" }] },
+                { title: "미지의 괴물과 마주치다", text: "아틀란티스 유적 깊은 곳에서 미지의 괴물과 마주쳤다. 괴물의 정체를 파악하고, 대응해야 한다.", options: [{ text: "괴물의 외형을 정밀하게 관찰하고, 특징을 기록한다.", intelligence: "자연친화지능" }, { text: "괴물의 행동과 움직임을 따라하고, 그 움직임의 의미를 파악한다.", intelligence: "신체운동지능" }, { text: "괴물의 울음소리를 듣고, 그 안에 담긴 감정을 이해한다.", intelligence: "음악지능" }, { text: "괴물에 대한 고대 문헌을 찾아, 괴물의 약점을 알아낸다.", intelligence: "언어지능" }] },
+                { title: "폭포 등반", text: "거대한 폭포가 당신의 길을 막고 있다. 폭포를 등반하여 반대편으로 넘어가야 한다.", options: [{ text: "폭포의 흐름과 바위의 모양을 분석하여, 가장 안전한 등반 경로를 찾아낸다.", intelligence: "공간지능" }, { text: "폭포의 물줄기를 온몸으로 느끼며, 몸의 균형을 조절한다.", intelligence: "신체운동지능" }, { text: "폭포 소리에 집중하며, 소리의 변화를 통해 위험을 감지한다.", intelligence: "음악지능" }, { text: "자신이 왜 이 폭포를 넘어야 하는지, 그 이유를 되새긴다.", intelligence: "자기성찰지능" }] },
+                { title: "용의 알 지키기", text: "고대 용의 알을 발견했다. 알을 노리는 몬스터들로부터 알을 지켜야 한다.", options: [{ text: "알을 지키기 위한 최적의 방어 전략을 논리적으로 수립한다.", intelligence: "논리수학지능" }, { text: "몬스터들의 공격에 맞춰 몸을 빠르게 움직여 알을 보호한다.", intelligence: "신체운동지능" }, { text: "몬스터들을 설득하여, 용의 알이 가진 신성함을 알려준다.", intelligence: "대인관계지능" }, { text: "용의 알에 대한 고대 문헌을 읽고, 용의 생태를 이해한다.", intelligence: "자연친화지능" }] },
+                { title: "고대 유적지 탐사", text: "미지의 고대 유적을 탐사해야 한다. 위험한 유적을 안전하게 탐사하고, 숨겨진 비밀을 밝혀내야 한다.", options: [{ text: "유적의 지도를 그려, 미지의 공간을 시각적으로 탐험한다.", intelligence: "공간지능" }, { text: "유적에 남겨진 고대 기록들을 해석하여, 유적의 역사를 알아낸다.", intelligence: "언어지능" }, { text: "동료들과 탐사 계획을 논의하고, 역할을 분담하여 효율적으로 탐사한다.", intelligence: "대인관계지능" }, { text: "자신이 유적을 탐사하는 이유와 목적을 깊이 생각한다.", intelligence: "자기성찰지능" }] },
+                { title: "길 잃은 아이 찾기", text: "위험한 숲에서 길을 잃은 아이를 찾아야 한다. 아이를 안전하게 구출하고, 부모에게 데려가야 한다.", options: [{ text: "아이의 울음소리에 귀 기울여, 아이의 위치를 찾아낸다.", intelligence: "음악지능" }, { text: "숲의 지형을 머릿속으로 파악하여, 아이가 있을 만한 장소를 추측한다.", intelligence: "공간지능" }, { text: "아이와 부모의 마음을 헤아리고, 따뜻한 말로 그들을 위로한다.", intelligence: "대인관계지능" }, { text: "자신의 체력을 계산하고, 가장 효율적인 수색 경로를 계획한다.", intelligence: "논리수학지능" }] },
+                { title: "위험한 강 건너기", text: "험난한 급류가 흐르는 강을 건너야 한다. 강을 건너기 위한 방법을 찾아야 한다.", options: [{ text: "강의 흐름과 속도를 논리적으로 분석하여, 가장 안전한 도하 지점을 찾는다.", intelligence: "논리수학지능" }, { text: "강 주변의 나무를 엮어 뗏목을 만들고, 몸을 이용해 균형을 잡는다.", intelligence: "신체운동지능" }, { text: "강 주변의 소리를 듣고, 물고기나 다른 생명체의 움직임을 감지한다.", intelligence: "자연친화지능" }, { text: "강을 건너야 하는 이유를 다시 한번 생각하며, 마음을 굳게 다진다.", intelligence: "자기성찰지능" }] },
+                { title: "숨겨진 문 열기", text: "아틀란티스의 보물이 숨겨진 방으로 들어가야 한다. 방의 문은 오직 용기 있는 자만이 열 수 있다. 어떻게 문을 열 것인가?", options: [{ text: "가장 복잡한 문양을 가진 손잡이를 힘으로 돌려 연다.", intelligence: "신체운동지능" }, { text: "문양에 담긴 수학적 공식을 풀어내어, 문을 열 수 있는 암호를 찾는다.", intelligence: "논리수학지능" }, { text: "문에 새겨진 고대 문장을 해독하여, 문을 열 수 있는 주문을 외운다.", intelligence: "언어지능" }, { text: "문에 새겨진 문양의 의미를 파악하고, 용기 있는 행동을 직접 보여준다.", intelligence: "자기성찰지능" }] }
+            ],
+            artist: [
+                { title: "잃어버린 노래 복원", text: "고대 아틀란티스의 아름다운 노래가 잊혀졌다. 단편적인 멜로디 조각들을 모아 노래를 복원해야 한다.", options: [{ text: "멜로디 조각들의 음정, 박자, 리듬을 분석하여 하나의 아름다운 노래를 만든다.", intelligence: "음악지능" }, { text: "노래의 가사에 담긴 고대 언어의 의미를 해석하고, 노래의 스토리를 이해한다.", intelligence: "언어지능" }, { text: "노래가 만들어진 배경과 당시 사람들의 감정에 대해 깊이 성찰한다.", intelligence: "자기성찰지능" }, { text: "노래를 함께 복원할 동료들을 모아, 각자의 악기를 연주하며 조화를 이룬다.", intelligence: "대인관계지능" }] },
+                { title: "벽화의 색채 복원", text: "고대 신전의 벽화가 빛바래어 색을 잃었다. 벽화의 색채를 복원하여 신전의 영광을 되살려야 한다.", options: [{ text: "벽화에 사용된 물감의 재료를 자연에서 직접 찾아낸다.", intelligence: "자연친화지능" }, { text: "벽화의 형태를 분석하여, 원래 색채의 배치를 머릿속으로 상상해본다.", intelligence: "공간지능" }, { text: "벽화를 손으로 직접 만져보고, 색채의 미묘한 질감을 느낀다.", intelligence: "신체운동지능" }, { text: "벽화가 전달하려는 메시지를 이해하고, 그에 맞는 감정을 색으로 표현한다.", intelligence: "자기성찰지능" }] },
+                { title: "마법의 조각상 만들기", text: "아틀란티스 대륙을 지키는 마법의 조각상이 파괴되었다. 조각상을 다시 만들어 힘을 불어넣어야 한다.", options: [{ text: "조각상의 재료가 될 돌을 직접 깎아, 조각상을 만든다.", intelligence: "신체운동지능" }, { text: "조각상에 담긴 마법의 원리를 수학적으로 분석하여, 완벽한 형태로 재현한다.", intelligence: "논리수학지능" }, { text: "조각상의 미학적 요소를 연구하고, 가장 아름다운 비율과 형태를 적용한다.", intelligence: "공간지능" }, { text: "조각상을 통해 전달하고자 하는 예술적 메시지를 명확하게 표현한다.", intelligence: "언어지능" }] },
+                { title: "밤하늘의 오케스트라", text: "아틀란티스의 밤하늘에는 별빛으로 이루어진 오케스트라가 있다. 별들의 움직임에 맞춰 오케스트라를 지휘해야 한다.", options: [{ text: "별들의 위치와 움직임을 분석하여, 오케스트라의 악보를 만들어낸다.", intelligence: "논리수학지능" }, { text: "별들의 반짝이는 소리를 듣고, 소리의 높낮이에 맞춰 오케스트라를 지휘한다.", intelligence: "음악지능" }, { text: "별들의 위치를 보며, 오케스트라의 위치를 시각적으로 설계한다.", intelligence: "공간지능" }, { text: "별빛이 낼 수 있는 가장 아름다운 소리를 상상하며, 오케스트라를 지휘한다.", intelligence: "자기성찰지능" }] },
+                { title: "음유시인의 대결", text: "다른 음유시인이 당신에게 노래 대결을 신청했다. 아름다운 노래로 대결에서 승리해야 한다.", options: [{ text: "상대방의 노래 가사를 분석하고, 그에 반박하는 논리적인 가사를 만들어낸다.", intelligence: "언어지능" }, { text: "상대방의 멜로디에 조화로운 화음을 만들어, 더 아름다운 노래를 부른다.", intelligence: "음악지능" }, { text: "상대방과 청중의 감정을 읽고, 모두를 감동시킬 수 있는 노래를 부른다.", intelligence: "대인관계지능" }, { text: "노래의 주제에 대해 깊이 성찰하고, 진심을 담아 노래를 부른다.", intelligence: "자기성찰지능" }] },
+                { title: "고대 춤 복원", text: "아틀란티스의 신성한 춤이 잊혀졌다. 춤을 복원하여 아틀란티스의 영광을 되살려야 한다.", options: [{ text: "고대 춤의 동작을 논리적으로 분석하고, 동작의 원리를 파악한다.", intelligence: "논리수학지능" }, { text: "춤의 동작에 담긴 감정을 이해하고, 그 감정을 몸으로 표현한다.", intelligence: "신체운동지능" }, { text: "춤의 동작을 그림으로 그려, 후대에 전할 수 있는 기록을 남긴다.", intelligence: "공간지능" }, { text: "다른 예술가들과 협력하여, 춤을 함께 복원한다.", intelligence: "대인관계지능" }] },
+                { title: "환상의 오페라", text: "아틀란티스의 멸망을 담은 오페라를 만들려 한다. 오페라를 통해 아틀란티스의 이야기를 세상에 알려야 한다.", options: [{ text: "오페라의 시나리오를 쓰고, 대사를 통해 이야기를 전달한다.", intelligence: "언어지능" }, { text: "오페라에 필요한 무대 세트를 직접 디자인하고 제작한다.", intelligence: "공간지능" }, { text: "오페라의 음악을 작곡하고, 감정을 음악으로 표현한다.", intelligence: "음악지능" }, { text: "오페라를 연출하며, 배우들과 협력하여 작품을 완성한다.", intelligence: "대인관계지능" }] },
+                { title: "마법의 분수대 디자인", text: "생명력이 깃든 마법의 분수대를 만들어야 한다. 분수대를 디자인하여 아틀란티스의 정원을 꾸며야 한다.", options: [{ text: "자연의 아름다운 비율과 조화를 참고하여, 분수대를 디자인한다.", intelligence: "자연친화지능" }, { text: "물의 흐름과 움직임을 계산하여, 가장 아름다운 분수대의 형태를 만든다.", intelligence: "논리수학지능" }, { text: "분수대에서 나는 물소리를 이용하여, 아름다운 소리를 만들어낸다.", intelligence: "음악지능" }, { text: "분수대를 만들며, 자신의 감정 변화와 영감을 기록한다.", intelligence: "자기성찰지능" }] },
+                { title: "잃어버린 악기 복원", text: "고대 아틀란티스 음악의 핵심이었던 잃어버린 악기를 발견했다. 악기를 복원하여 연주해야 한다.", options: [{ text: "악기의 형태와 재질을 분석하여, 악기의 원리를 이해한다.", intelligence: "공간지능" }, { text: "악기의 부서진 부분을 직접 수리하고, 연주할 수 있게 만든다.", intelligence: "신체운동지능" }, { text: "악기를 만든 장인의 마음을 이해하고, 그가 담은 철학을 느낀다.", intelligence: "자기성찰지능" }, { text: "악기에 대한 고대 기록을 찾아, 악기의 역사를 연구한다.", intelligence: "언어지능" }] },
+                { title: "빛의 마법", text: "어둠에 갇힌 동굴을 밝혀야 한다. 빛의 마법을 이용하여 아름다운 그림자를 창조해야 한다.", options: [{ text: "빛과 그림자가 만들어내는 공간의 형태를 조절하여, 아름다운 그림을 만든다.", intelligence: "공간지능" }, { text: "빛의 파장과 그림자의 농도를 계산하여, 마법의 효과를 극대화한다.", intelligence: "논리수학지능" }, { text: "빛이 가진 따뜻함과 아름다움을 느끼고, 자신의 감정과 연결한다.", intelligence: "자기성찰지능" }, { text: "마법 주문을 외워 빛을 조절하고, 빛으로 그림을 그린다.", intelligence: "언어지능" }] },
+                { title: "폭포의 음악", text: "거대한 폭포의 소리가 아름다운 음악처럼 들린다. 폭포의 소리를 음악으로 기록해야 한다.", options: [{ text: "폭포의 소리를 악보로 옮기고, 소리의 강약과 리듬을 표현한다.", intelligence: "음악지능" }, { text: "폭포의 물줄기에서 느껴지는 역동적인 에너지를 몸으로 표현한다.", intelligence: "신체운동지능" }, { text: "폭포의 물이 흐르는 모습을 그림으로 그려, 음악을 시각적으로 표현한다.", intelligence: "공간지능" }, { text: "폭포의 음악에 담긴 자연의 위대함을 이해하고, 이를 글로 남긴다.", intelligence: "언어지능" }] },
+                { title: "석공 예술가와의 협업", text: "재능 있는 석공 예술가와 협업하여, 아틀란티스의 영광을 담은 거대한 조각상을 만들어야 한다.", options: [{ text: "석공 예술가와 소통하며, 서로의 아이디어를 공유하고 조율한다.", intelligence: "대인관계지능" }, { text: "조각상의 디자인을 논리적으로 설계하여, 석공 예술가에게 전달한다.", intelligence: "논리수학지능" }, { text: "조각상의 재료가 될 돌의 종류와 특성을 분석하여, 가장 적합한 재료를 추천한다.", intelligence: "자연친화지능" }, { text: "석공 예술가의 작업 방식을 관찰하고, 직접 그의 작업을 도와준다.", intelligence: "신체운동지능" }] },
+                { title: "예술의 영감 찾기", text: "예술적 영감이 사라져 작품 활동이 어렵다. 영감을 찾아, 새로운 걸작을 만들어야 한다.", options: [{ text: "숲을 거닐며 자연의 아름다움과 생명력을 느끼고, 영감을 얻는다.", intelligence: "자연친화지능" }, { text: "다른 예술가들의 작품을 감상하고, 그들의 표현 방식을 분석한다.", intelligence: "대인관계지능" }, { text: "자신의 내면의 깊은 곳으로 들어가, 진정한 아름다움이 무엇인지 성찰한다.", intelligence: "자기성찰지능" }, { text: "오래된 고대 시집을 읽고, 시 속에 담긴 감정을 이해한다.", intelligence: "언어지능" }] },
+                { title: "음악으로 마법 걸기", text: "음악으로 마법을 걸어, 사람들의 마음을 움직여야 한다. 어떤 음악을 연주할 것인가?", options: [{ text: "사랑과 희망을 담은 음악을 작곡하여, 사람들에게 용기를 준다.", intelligence: "음악지능" }, { text: "논리적으로 구성된 멜로디와 화음을 통해, 사람들에게 안정감을 준다.", intelligence: "논리수학지능" }, { text: "자연의 소리를 모방하여, 사람들에게 자연의 위대함을 느끼게 한다.", intelligence: "자연친화지능" }, { text: "자신의 경험을 바탕으로, 진심을 담아 노래를 부른다.", intelligence: "자기성찰지능" }] },
+                { title: "공간의 조화", text: "아틀란티스의 신성한 장소의 조화가 깨졌다. 공간의 조화를 되찾기 위해 예술을 활용해야 한다.", options: [{ text: "공간의 기하학적 형태와 배치를 분석하여, 조화를 되찾는 디자인을 구상한다.", intelligence: "공간지능" }, { text: "공간에 맞는 음악을 작곡하고, 공간에 조화로운 소리를 불어넣는다.", intelligence: "음악지능" }, { text: "공간에 대한 이야기를 글로 써서, 사람들에게 공간의 의미를 전달한다.", intelligence: "언어지능" }, { text: "공간에 놓일 예술 작품을 직접 만들고, 몸으로 공간의 조화를 느낀다.", intelligence: "신체운동지능" }] },
+                { title: "고대 무용수의 초상화", text: "위대한 고대 무용수의 초상화를 그려야 한다. 초상화를 통해 무용수의 움직임과 정신을 표현해야 한다.", options: [{ text: "무용수의 춤 동작을 관찰하고, 그 움직임을 그림으로 표현한다.", intelligence: "신체운동지능" }, { text: "무용수의 표정과 감정을 읽고, 그 감정을 초상화에 담는다.", intelligence: "대인관계지능" }, { text: "초상화의 구도와 색채를 논리적으로 구성하여, 완벽한 초상화를 만든다.", intelligence: "논리수학지능" }, { text: "무용수가 왜 춤을 추는지, 그 내면의 이유를 이해하고 초상화에 담는다.", intelligence: "자기성찰지능" }] },
+                { title: "환상의 극단 창설", text: "아틀란티스의 예술을 세상에 알리기 위해, 환상의 극단을 창설해야 한다.", options: [{ text: "극단의 공연을 논리적으로 계획하고, 필요한 자금과 자원을 계산한다.", intelligence: "논리수학지능" }, { text: "극단원들을 모집하고, 그들의 재능을 발굴하여 극단을 이끈다.", intelligence: "대인관계지능" }, { text: "공연의 대본을 직접 쓰고, 관객에게 감동을 전달한다.", intelligence: "언어지능" }, { text: "극단의 모든 공연에 들어갈 음악과 무대 디자인을 총괄한다.", intelligence: "음악지능" }] },
+                { title: "자연을 담은 예술", text: "자연을 소재로 예술 작품을 만들어야 한다. 어떤 예술 작품을 만들 것인가?", options: [{ text: "자연의 소리를 녹음하여, 자연의 음악을 만든다.", intelligence: "음악지능" }, { text: "자연의 재료를 활용하여, 자연의 형태를 모방한 조각상을 만든다.", intelligence: "자연친화지능" }, { text: "자연의 아름다움을 시적으로 표현하고, 그 의미를 글로 전달한다.", intelligence: "언어지능" }, { text: "자연의 풍경을 그림으로 그려, 새로운 공간을 창조한다.", intelligence: "공간지능" }] },
+                { title: "마법의 물감", text: "감정을 색으로 표현할 수 있는 마법의 물감을 만들어야 한다. 물감을 어떻게 만들 것인가?", options: [{ text: "자신의 감정을 깊이 성찰하고, 각 감정에 맞는 색을 찾는다.", intelligence: "자기성찰지능" }, { text: "다양한 식물과 광물을 조합하여, 새로운 색을 만들어낸다.", intelligence: "자연친화지능" }, { text: "물감을 만드는 과정에 필요한 화학적 비율을 계산하여, 가장 아름다운 색을 얻는다.", intelligence: "논리수학지능" }, { text: "물감의 질감을 손으로 직접 느끼며, 감각적으로 색을 표현한다.", intelligence: "신체운동지능" }] },
+                { title: "예술로 세상 바꾸기", text: "당신의 예술로 세상을 바꿔야 한다. 어떤 예술로 세상을 바꿀 것인가?", options: [{ text: "모두가 함께 즐길 수 있는 음악을 만들어, 사람들에게 기쁨을 준다.", intelligence: "음악지능" }, { text: "삶의 의미를 담은 시를 쓰고, 사람들에게 깊은 깨달음을 준다.", intelligence: "언어지능" }, { text: "아름다운 건축물을 디자인하여, 사람들의 삶의 공간을 변화시킨다.", intelligence: "공간지능" }, { text: "자신을 깊이 이해하고 성찰하여, 진정한 예술의 의미를 세상에 전한다.", intelligence: "자기성찰지능" }] }
+            ]
+        };
+
+        function switchScreen(from, to) {
+            const fromScreen = document.getElementById(from);
+            const toScreen = document.getElementById(to);
+            if (fromScreen) {
+                fromScreen.classList.add('fade-out');
+                setTimeout(() => {
+                    fromScreen.classList.remove('visible', 'fade-out');
+                    toScreen.classList.add('visible', 'fade-in');
+                }, 1000);
+            } else {
+                toScreen.classList.add('visible', 'fade-in');
+            }
+        }
+
+        const startGame = () => {
+            switchScreen('start-screen', 'character-select-screen');
+            bgm.play();
+        };
+
+        const selectCharacter = (event) => {
+            characterCards.forEach(card => card.classList.remove('selected'));
+            const card = event.currentTarget;
+            card.classList.add('selected');
+            selectedCharacter = card.dataset.character;
+            selectCharBtn.disabled = false;
+        };
+
+        const startQuest = () => {
+            if (!selectedCharacter) {
+                alert('캐릭터를 선택해주세요!');
+                return;
+            }
+            switchScreen('character-select-screen', 'quest-screen');
+            questIndex = 0;
+            scores = { '언어지능': 0, '논리수학지능': 0, '공간지능': 0, '신체운동지능': 0, '음악지능': 0, '대인관계지능': 0, '자기성찰지능': 0, '자연친화지능': 0 };
+            document.getElementById('quest-story').textContent = characterData[selectedCharacter].story;
+            showQuest();
+        };
+
+        const showQuest = () => {
+            if (questIndex >= totalQuests) {
+                showResult();
+                return;
+            }
+
+            const currentQuest = questData[selectedCharacter][questIndex];
+            questTitle.textContent = currentQuest.title;
+            questText.textContent = currentQuest.text;
+            questOptions.innerHTML = '';
+            
+            // 옵션 순서를 랜덤으로 섞기
+            const shuffledOptions = currentQuest.options.sort(() => Math.random() - 0.5);
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('quest-option');
+                button.textContent = option.text;
+                button.addEventListener('click', () => handleAnswer(option.intelligence));
+                questOptions.appendChild(button);
+            });
+            updateProgressBar();
+        };
+
+        const handleAnswer = (intelligence) => {
+            scores[intelligence]++;
+            questIndex++;
+            showQuest();
+        };
+
+        const updateProgressBar = () => {
+            const progress = (questIndex / totalQuests) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressBar.textContent = `${Math.round(progress)}%`;
+        };
+
+        const showResult = () => {
+            switchScreen('quest-screen', 'result-screen');
+            bgm.pause();
+            bgm.currentTime = 0;
+            
+            const sortedScores = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            const dominantIntelligence = sortedScores[0][0];
+            const secondIntelligence = sortedScores[1][0];
+
+            resultContent.innerHTML = `
+                <p>당신의 모험 결과, 가장 빛나는 강점 지능은 바로 <span class="star-burst">${intelligenceInfo[dominantIntelligence].title}</span> 입니다!</p>
+                <p>${intelligenceInfo[dominantIntelligence].description}</p>
+                <br>
+                <p>그다음으로 강한 지능은 <span class="star-burst">${intelligenceInfo[secondIntelligence].title}</span>입니다. 두 지능을 함께 활용하여 더 큰 잠재력을 발휘해보세요!</p>
+            `;
+            
+            // 임시 학생 ID와 이름 생성
+            const studentId = 'S' + Math.floor(Math.random() * 1000);
+            const studentName = '학생' + Math.floor(Math.random() * 100);
+            studentResults.push({ studentId, name: studentName, scores });
+        };
+
+        const showDashboard = (fromScreen) => {
+            switchScreen(fromScreen, 'dashboard-screen');
+            const dashboardContent = document.getElementById('dashboard-content');
+            
+            if (studentResults.length === 0) {
+                dashboardContent.innerHTML = '<p>아직 참여한 학생이 없습니다.</p>';
+                return;
+            }
+
+            let tableHTML = '<table><thead><tr><th>학번</th><th>이름</th><th>1순위 강점지능</th></tr></thead><tbody>';
+            studentResults.forEach(student => {
+                const sortedScores = Object.entries(student.scores).sort((a, b) => b[1] - a[1]);
+                const dominant = sortedScores[0][0];
+                tableHTML += `<tr><td>${student.studentId}</td><td>${student.name}</td><td>${intelligenceInfo[dominant].title}</td></tr>`;
+            });
+            tableHTML += '</tbody></table>';
+            dashboardContent.innerHTML = tableHTML;
+        };
+
+        const restartGame = () => {
+            switchScreen('result-screen', 'start-screen');
+        };
+
+        const goBackToHome = () => {
+            switchScreen('dashboard-screen', 'start-screen');
+        };
+
+        startBtn.addEventListener('click', startGame);
+        startDashboardBtn.addEventListener('click', () => showDashboard('start-screen'));
+        characterCards.forEach(card => card.addEventListener('click', selectCharacter));
+        selectCharBtn.addEventListener('click', startQuest);
+        restartBtn.addEventListener('click', restartGame);
+        dashboardBtn.addEventListener('click', () => showDashboard('result-screen'));
+        backToHomeBtn.addEventListener('click', goBackToHome);
+    </script>
+</body>
+</html>
